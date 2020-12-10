@@ -1,0 +1,13 @@
+.input-size {
+  max-width: 75px;
+  max-height: 30px;
+  margin: auto;
+}
+
+.card-header {
+  border-bottom: none;
+}
+
+.spaced-input {
+  letter-spacing: 3px;
+}

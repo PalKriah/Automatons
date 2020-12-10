@@ -1,0 +1,176 @@
+<h1 class="text-primary font-weight-bold pb-3">
+    Veremautómata:
+</h1>
+<div class="card mb-3">
+    <div class="card-header">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <button class="mr-1 btn btn-sm btn-dark h-75" (click)="showGrammar = !showGrammar">
+                    <fa-icon *ngIf="showGrammar" [icon]="faMinus"></fa-icon>
+                    <fa-icon *ngIf="!showGrammar" [icon]="faPlus"></fa-icon>
+                </button>
+                <h3 class="m-0">Nyelvtan</h3>
+            </div>
+            <button class="btn btn-success col-1 mr-3" [disabled]="!save" (click)="saveGrammar()">Ment</button>
+        </div>
+    </div>
+    <div *ngIf="showGrammar" class="card-body">
+        <div class="row">
+            <div class="form-group col-6">
+                <label for="terminalSymbol">Terminális szimbólumok száma:</label>
+                <input class="form-control" type="number" min="1" max="15" [(ngModel)]="terminalSymbolCount" (input)="adjustTable()"
+                    id="terminalSymbol" />
+            </div>
+            <div class="form-group col-6">
+                <label for="nonterminalSymbol">Nemterminális szimbólumok száma:</label>
+                <input class="form-control" type="number" min="1" [(ngModel)]="nonterminalSymbolCount" (input)="adjustTable()"
+                    id="nonterminalSymbol" />
+            </div>
+            <div class="form-group col-6">
+                <label for="startSymbol">Kezdőszimbólum:</label>
+                <input class="form-control" type="text" [(ngModel)]="startSymbol"
+                    (input)="this.nonterminalSymbols[0] = this.startSymbol; this.save = true;" id="startSymbol" />
+            </div>
+            <div class="form-group col-6">
+                <label for="epsilon">&epsilon; szimbólum megfelelője:</label>
+                <input class="form-control" type="text" [(ngModel)]="epsilonSymbol" (input)="this.save = true;" id="epsilon" />
+            </div>
+            <div class="col-12">
+                <p for="saveType" class="m-0">Mentés típusa:</p>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" checked type="radio" name="saveType" id="save1" (input)="useTable = true; this.save = true;">
+                    <label class="form-check-label" for="save1">táblázat</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="saveType" id="save2" (input)="useTable = false; this.save = true;">
+                    <label class="form-check-label" for="save2">lambda kifejezések</label>
+                </div>
+            </div>
+
+            <table class="table table-bordered mx-3">
+                <thead>
+                    <tr>
+                        <th class="px-1 align-middle">
+                            <div class="text-center mb-0">
+                                <fa-icon [icon]="faBookOpen" size="2x"></fa-icon>
+                            </div>
+                        </th>
+                        <th class="px-1" *ngFor="let item of [].constructor(terminalSymbolCount); let i = index">
+                            <input class="form-control input-size text-center font-weight-bold" type="text" [(ngModel)]="terminalSymbols[i]"
+                                (input)="this.save = true;" />
+                        </th>
+                        <th class="px-1 align-middle">
+                            <h4 class="text-center mb-0">#</h4>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of [].constructor(nonterminalSymbolCount); let i = index">
+                        <td>
+                            <input class="form-control input-size text-center font-weight-bold" type="text" [(ngModel)]="nonterminalSymbols[i]"
+                                (input)="this.save = true;" />
+                        </td>
+                        <td class="px-1" *ngFor="let item of [].constructor(terminalSymbolCount + 1); let j = index">
+                            <input class="form-control input-size text-center font-weight-bold" type="text" [(ngModel)]="cells[i][j]"
+                                (input)="this.save = true;" />
+                        </td>
+                    </tr>
+                    <tr *ngFor="let item of [].constructor(terminalSymbolCount); let i = index">
+                        <td>
+                            <h4 class="text-center mb-1 align-middle">{{terminalSymbols[i]}}</h4>
+                        </td>
+                        <td class="px-1 align-middle" *ngFor="let item of [].constructor(terminalSymbolCount + 1); let j = index">
+                            <div *ngIf="i==j" class="text-center mb-0">
+                                <fa-icon [icon]="faShareSquare" size="2x"></fa-icon>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-1 align-middle">
+                            <h4 class="text-center mb-0">#</h4>
+                        </td>
+                        <td *ngFor="let item of [].constructor(terminalSymbolCount); let i = index"></td>
+                        <td class="px-1 align-middle">
+                            <div class="text-center mb-0">
+                                <fa-icon [icon]="faCheckCircle" size="2x"></fa-icon>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header">
+        <h3>Kifejezés</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="form-group col-12">
+                <label for="expression">Kiértékelendő kifejezés:</label>
+                <input class="form-control spaced-input" type="text" [(ngModel)]="expression" id="expression" [ngClass]="getResult()"
+                    (input)="result = null;" />
+            </div>
+            <div class="form-group col-12 ml-1">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="converNumber" (input)="convertNumber = !convertNumber" checked>
+                    <label class="form-check-label" for="converNumber">Egész szám karakterré konvertálása</label>
+                </div>
+            </div>
+            <div *ngIf="convertNumber" class="form-group col-12">
+                <input class="form-control" type="text" [(ngModel)]="converNumberTo" />
+            </div>
+        </div>
+        <button class="btn btn-success col-12" [disabled]="save" (click)="validateExpression()">Kiértékel</button>
+        <p *ngIf="save" class="m-0">* Nyelvtan mentése szükséges.</p>
+    </div>
+</div>
+
+<div *ngIf="result != null" class="card  mb-3">
+    <div class="card-header">
+        <h3>Megoldás</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <table class="table table-bordered mx-3">
+                <thead>
+                    <tr>
+                        <th>Lépés</th>
+                        <th>Bemenet</th>
+                        <th>Verem tartalma</th>
+                        <th>Következő lépés</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let step of resultSteps; let i = index">
+                        <td>{{i}}. lépés</td>
+                        <td class="text-right spaced-input">{{step.inputReminder}}</td>
+                        <td class="text-right">
+                            <span *ngFor="let item of step.stack; let j = index; let last = last">
+                                <span class="mr-1">{{item}}</span>
+                                <span *ngIf="!last" class="mr-1">, </span>
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <span *ngFor="let item of step.next; let j = index; let last = last">
+                                <span *ngIf="item == 'pop'">
+                                    <fa-icon [icon]="faShareSquare" size="2x"></fa-icon>
+                                </span>
+                                <span *ngIf="item == 'accept'">
+                                    <fa-icon [icon]="faCheckCircle" size="2x"></fa-icon>
+                                </span>
+                                <span *ngIf="item == 'reject'">
+                                    <fa-icon [icon]="faTimesCircle" size="2x"></fa-icon>
+                                </span>
+                                <span class="mr-1" *ngIf="item != 'pop' && item != 'accept' && item != 'reject'">{{item}}</span>
+                                <span *ngIf="!last" class="mr-1">, </span>
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
